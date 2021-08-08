@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+TMP_FILE='/tmp/tac-blacklist'
+SRC_URL='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/certlist.json'
+BLACKLIST_FILE='blacklist.txt'
+DATE_FILE='update-date.txt'
+
+curl --output "${TMP_FILE}" "${SRC_URL}"
+grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE}"
+date '+%Y/%m/%d %H:%M %Z' > "${DATE_FILE}"
+rm "${TMP_FILE}"
