@@ -3,11 +3,19 @@
 set -e
 
 TMP_FILE='/tmp/tac-blacklist'
-SRC_URL='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/certlist.json'
-BLACKLIST_FILE='blacklist.txt'
+SRC_URL_EUDCC='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/certlist.json'
+BLACKLIST_FILE_EUDCC='blacklist-EUDCC.txt'
+SRC_URL_2DDOC='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/2ddoc_list.json'
+BLACKLIST_FILE_2DDOC='blacklist-2D-DOC.txt'
+
 DATE_FILE='update-date.txt'
 
-curl --output "${TMP_FILE}" "${SRC_URL}"
-grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE}"
+curl --output "${TMP_FILE}" "${SRC_URL_EUDCC}"
+grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE_EUDCC}"
+
+curl --output "${TMP_FILE}" "${SRC_URL_2DDOC}"
+grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE_2DDOC}"
+
+
 date '+%Y/%m/%d %H:%M %Z' > "${DATE_FILE}"
 rm "${TMP_FILE}"
