@@ -2,20 +2,36 @@
 
 set -e
 
-TMP_FILE='/tmp/tac-blacklist'
-SRC_URL_EUDCC='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/certlist.json'
-BLACKLIST_FILE_EUDCC='blacklist-EUDCC.txt'
-SRC_URL_2DDOC='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/2ddoc_list.json'
-BLACKLIST_FILE_2DDOC='blacklist-2D-DOC.txt'
+### Generic constants ###
 
+TMP_FILE='/tmp/tac-blacklist'
 DATE_FILE='update-date.txt'
 
-curl --output "${TMP_FILE}" "${SRC_URL_EUDCC}"
-grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE_EUDCC}"
+### TousAntiCovid constants ###
 
-curl --output "${TMP_FILE}" "${SRC_URL_2DDOC}"
-grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE_2DDOC}"
+SRC_URL_TAC_EUDCC='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/certlist.json'
+BLACKLIST_FILE_TAC_EUDCC='blacklist-TAC-EUDCC.txt'
+SRC_URL_TAC_2DDOC='https://app-static.tousanticovid.gouv.fr/json/version-35/CertList/2ddoc_list.json'
+BLACKLIST_FILE_TAC_2DDOC='blacklist-TAC-2D-DOC.txt'
 
+### TousAntiCovid Verif constants ###
+
+ACCESS_TOKEN='eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJqUG0zZ1BzUlZaMWRRUmhHOG1HMGhFN3Jlb2ZXTTNINzJCV1RtajdJcFd3In0.eyJleHAiOjE2ODUxODU5MDYsImlhdCI6MTYyMjExMzkwNiwianRpIjoiOTdjODgyM2EtNjlhZS00NzA4LWE4N2UtNzYxM2NhNGU3ODU5IiwiaXNzIjoiaHR0cHM6Ly9hdXRoLm1lc3NlcnZpY2VzLmluZ3JvdXBlLmNvbS9hdXRoL3JlYWxtcy9QSU5HIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImVhMWY1NWVlLTUxMGMtNGMxNi05MWQ4LTE1MjI4OGJhZDViYSIsInR5cCI6IkJlYXJlciIsImF6cCI6InRhY3YtY2xpZW50LWxpdGUiLCJzZXNzaW9uX3N0YXRlIjoiNjk5ODExY2YtODFlZS00ZmNkLTk4NDctY2FkMGJmYjZhOTdiIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJST0xFX1ZFUklGWV9DT05UUk9MXzJERE9DX0wxIiwiUk9MRV9WRVJJRllfQ09OVFJPTF8yRERPQ19CMiIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6ImVtYWlsIHByb2ZpbGUgb2ZmbGluZV9hY2Nlc3MiLCJzaXJlbiI6IjAwMDAwMDAwMCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoidGFjdi1tb2JpbGUtbGl0ZSIsImdpdmVuX25hbWUiOiIiLCJmYW1pbHlfbmFtZSI6IiJ9.mpfrIP8ayElTm7yoVayCF11oYrDQEnauk9hbbVBw8idAiE6OsMlWNloZtUbbnwrJZsMX3_NoEyzkiB3HNbxyhPWp7eRZ7qhn8XjZVgg6sVytXqcVZo9R5-Q9JftMKv7JelsY3PsaOo5x-pYOX30ancPRjd78TeenorGopsVN_LLRLQpenfgjjgwx-srZnLa-TFYTcbSvXozfJT7uk5CHyz_MIFLM7pl9Zdt66yTGBkLIyOLFsV5vPeH5SYvgRNDYdxZy4XMo6Gyfz0lAI9Xfcjs20NBoOQMV4JREH4Z-IcJJXeszC9QeA1-tRmxujqIRuyvBal7msLy7Zimd2q7i3Q'
+SRC_URL_TACV='https://portail.tacv.myservices-ingroupe.com/api/client/configuration/synchronisation/tacv'
+BLACKLIST_FILE_TACV_EUDCC='blacklist-TACV-EUDCC.txt'
+BLACKLIST_FILE_TACV_2DDOC='blacklist-TACV-2D-DOC.txt'
+
+### Code ###
+
+curl --output "${TMP_FILE}" "${SRC_URL_TAC_EUDCC}"
+grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE_TAC_EUDCC}"
+
+curl --output "${TMP_FILE}" "${SRC_URL_TAC_2DDOC}"
+grep -oE '[a-f0-9]{64}' "${TMP_FILE}" | sort -u > "${BLACKLIST_FILE_TAC_2DDOC}"
+
+curl --output "${TMP_FILE}" --oauth2-bearer "${ACCESS_TOKEN}" "${SRC_URL_TACV}"
+jq .specificValues.blacklist.blacklistDCC   "${TMP_FILE}" |  grep -oE '[a-f0-9]{64}' | sort -u > "${BLACKLIST_FILE_TACV_EUDCC}"
+jq .specificValues.blacklist.blacklist2DDOC "${TMP_FILE}" |  grep -oE '[a-f0-9]{64}' | sort -u > "${BLACKLIST_FILE_TACV_2DDOC}"
 
 date '+%Y/%m/%d %H:%M %Z' > "${DATE_FILE}"
 rm "${TMP_FILE}"
