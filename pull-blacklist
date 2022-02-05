@@ -36,7 +36,7 @@ function getTACList {
         fi
         mv "${TMP_FILE}" "${TMP_FILE}.gz"
         gunzip "${TMP_FILE}.gz"
-        grep -oE '[a-f0-9]{64}' "${TMP_FILE}" >> "${2}"     
+        grep -oE '[a-f0-9]{64}' "${TMP_FILE}" >> "${2}" 
         i=$(($i + 1))
     done
     sort -o "${2}" -u "${2}"
